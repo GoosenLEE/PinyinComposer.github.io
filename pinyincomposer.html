@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>汉语拼音组合练习器</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+      background: #f9f9f9;
+    }
+    h2 { margin-top: 30px; }
+    .section {
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .btn {
+      padding: 6px 12px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #f0f0f0;
+      cursor: pointer;
+    }
+    .btn.active {
+      background: #4CAF50;
+      color: white;
+    }
+    .result {
+      font-size: 28px;
+      text-align: center;
+      margin: 20px 0;
+      min-height: 40px;
+      font-weight: bold;
+    }
+    .tone-btns {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>汉语拼音组合练习器</h1>
+  <div class="result" id="result">请选择声母和韵母</div>
+
+  <div class="section">
+    <h2>🔊 声母（点击选择）</h2>
+    <div class="buttons" id="initials"></div>
+  </div>
+
+  <div class="section">
+    <h2>🎵 韵母（点击选择）</h2>
+    <div class="buttons" id="finals"></div>
+  </div>
+
+  <div class="section">
+    <h2>🗣️ 点击发音</h2>
+    <div class="tone-btns">
+      <button class="btn" onclick="speak(1)">第1声</button>
+      <button class="btn" onclick="speak(2)">第2声</button>
+      <button class="btn" onclick="speak(3)">第3声</button>
+      <button class="btn" onclick="speak(4)">第4声</button>
+    </div>
+  </div>
+
+  <script>
+    const initials = ["∅", "b", "p", "m", "f", "d", "t", "n", "l", "g", "k", "h",
+                      "j", "q", "x", "zh", "ch", "sh", "r", "z", "c", "s", "y", "w"];
+    const finals = [
+      "a", "o", "e", "i", "u", "ü", "ai", "ei", "ao", "ou",
+      "an", "en", "ang", "eng", "ong", "ia", "ie", "iao", "iou",
+      "ian", "in", "iang", "ing", "ua", "uo", "uai", "uei",
+      "uan", "uen", "uang", "ueng", "üe", "üan", "ün"
+    ];
+
+    let selectedInitial = "";
+    let selectedFinal = "";
+
+    function selectInitial(ini) {
+      selectedInitial = ini === "∅" ? "" : ini;
+      document.querySelectorAll("#initials .btn").forEach(btn => btn.classList.remove("active"));
+      event.target.classList.add("active");
+      updateResult();
+    }
+
+    function selectFinal(fin) {
+      selectedFinal = fin;
+      document.querySelectorAll("#finals .btn").forEach(btn => btn.classList.remove("active"));
+      event.target.classList.add("active");
+      updateResult();
+    }
+
+    function updateResult() {
+      const res = document.getElementById("result");
+      if (selectedFinal) {
+        res.textContent = selectedInitial + selectedFinal;
+      } else {
+        res.textContent = "请选择韵母";
+      }
+    }
+
+    function speak(tone) {
+      if (!selectedFinal) return;
+      const text = selectedInitial + selectedFinal + tone; // 如 "zhong1"
+
+      // 使用 Web Speech API
+      if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'zh-CN'; // 中文
+        utterance.rate = 1.0;
+        speechSynthesis.speak(utterance);
+      } else {
+        alert("您的浏览器不支持语音朗读功能，请使用 Chrome 或 Edge。");
+      }
+    }
+
+    // 初始化按钮
+    const iniContainer = document.getElementById("initials");
+    initials.forEach(ini => {
+      const btn = document.createElement("button");
+      btn.className = "btn";
+      btn.textContent = ini;
+      btn.onclick = () => selectInitial(ini);
+      iniContainer.appendChild(btn);
+    });
+
+    const finContainer = document.getElementById("finals");
+    finals.forEach(fin => {
+      const btn = document.createElement("button");
+      btn.className = "btn";
+      btn.textContent = fin;
+      btn.onclick = () => selectFinal(fin);
+      finContainer.appendChild(btn);
+    });
+  </script>
+</body>
+</html>
